@@ -4,12 +4,14 @@ const nufus = require("./nufus.json");
 const moment = require("moment-timezone");
 
 // Write date and explanation
-const dateStr = moment()
-  .tz("Europe/Istanbul")
-  .locale("tr")
-  .format("D MMMM YYYY dddd HH:mm ");
+const date = moment().tz("Europe/Istanbul").locale("tr");
+const dateStr = date.format("D MMMM YYYY dddd HH:mm ");
 
 exports.tweetVaccinations = async () => {
+  console.log(`It's ${date.hour()} o'clock in Turkey!`);
+  if (date.hour() !== 13 || date.hour() !== 18 || date.hour() !== 22) {
+    return;
+  }
   const vaccinationStats = await scrapeStats();
   const vaccinationPercentages = calculateVaccinationPercentages(
     vaccinationStats,
