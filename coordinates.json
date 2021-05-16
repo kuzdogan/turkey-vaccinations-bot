@@ -1,16 +1,17 @@
 {
   "adana": {
-    "top": 375,
-    "left": 508
+    "top": 380,
+    "left": 505,
+    "fontSize": "10pt"
   },
   "adiyaman": {
-    "top": 341,
-    "left": 668,
-    "fontSize": "9pt"
+    "top": 349,
+    "left": 644,
+    "fontSize": "8pt"
   },
   "afyonkarahisar": {
     "top": 275,
-    "left": 261
+    "left": 255
   },
   "agri": {
     "top": 206,
@@ -18,40 +19,40 @@
   },
   "amasya": {
     "top": 153,
-    "left": 532,
+    "left": 528,
     "fontSize": "9pt"
   },
   "ankara": {
     "top": 204,
-    "left": 362
+    "left": 356
   },
   "antalya": {
     "top": 388,
-    "left": 268
+    "left": 260
   },
   "artvin": {
     "top": 108,
-    "left": 842,
+    "left": 838,
     "fontSize": "10pt"
   },
   "aydin": {
     "top": 332,
-    "left": 112,
+    "left": 109,
     "fontSize": "10pt"
   },
   "balikesir": {
     "top": 205,
-    "left": 120,
+    "left": 112,
     "fontSize": "11pt"
   },
   "bilecik": {
     "top": 182,
-    "left": 237,
-    "fontSize": "9pt"
+    "left": 235,
+    "fontSize": "8pt"
   },
   "bingol": {
     "top": 259,
-    "left": 790,
+    "left": 785,
     "fontSize": "10pt"
   },
   "bitlis": {
@@ -61,35 +62,35 @@
   },
   "bolu": {
     "top": 151,
-    "left": 326,
+    "left": 323,
     "fontSize": "10pt"
   },
   "burdur": {
-    "top": 355,
-    "left": 224,
-    "fontSize": "11pt"
+    "top": 358,
+    "left": 222,
+    "fontSize": "10pt"
   },
   "bursa": {
     "top": 178,
-    "left": 174
+    "left": 169
   },
   "canakkale": {
-    "top": 173,
-    "left": 66,
+    "top": 176,
+    "left": 60,
     "fontSize": "11pt"
   },
   "cankiri": {
     "top": 152,
-    "left": 408,
-    "fontSize": "11pt"
+    "left": 405,
+    "fontSize": "10pt"
   },
   "corum": {
     "top": 163,
-    "left": 469
+    "left": 466
   },
   "denizli": {
     "top": 335,
-    "left": 177,
+    "left": 175,
     "fontSize": "10pt"
   },
   "diyarbakir": {
@@ -97,13 +98,13 @@
     "left": 770
   },
   "edirne": {
-    "top": 95,
-    "left": 66,
-    "fontSize": "8pt"
+    "top": 97,
+    "left": 61,
+    "fontSize": "7pt"
   },
   "elazig": {
-    "top": 291,
-    "left": 702,
+    "top": 293,
+    "left": 693,
     "fontSize": "9pt"
   },
   "erzincan": {
@@ -113,26 +114,26 @@
   },
   "erzurum": {
     "top": 190,
-    "left": 824
+    "left": 817
   },
   "eskisehir": {
     "top": 215,
-    "left": 283
+    "left": 276
   },
   "gaziantep": {
     "top": 395,
-    "left": 620,
-    "fontSize": "10pt"
+    "left": 617,
+    "fontSize": "9pt"
   },
   "giresun": {
     "top": 153,
-    "left": 670,
-    "fontSize": "9pt"
+    "left": 667,
+    "fontSize": "8pt"
   },
   "gumushane": {
     "top": 173,
-    "left": 719,
-    "fontSize": "9pt"
+    "left": 717,
+    "fontSize": "8pt"
   },
   "hakkari": {
     "top": 347,
@@ -140,79 +141,79 @@
     "fontSize": "9pt"
   },
   "hatay": {
-    "top": 443,
-    "left": 559,
+    "top": 446,
+    "left": 552,
     "fontSize": "8pt"
   },
   "isparta": {
     "top": 347,
-    "left": 277,
+    "left": 272,
     "fontSize": "8pt"
   },
   "mersin": {
-    "top": 418,
-    "left": 423,
+    "top": 421,
+    "left": 417,
     "fontSize": "11pt"
   },
   "istanbul": {
     "top": 106,
-    "left": 167,
+    "left": 160,
     "fontSize": "8pt"
   },
   "izmir": {
     "top": 298,
-    "left": 86,
-    "fontSize": "10pt"
+    "left": 79,
+    "fontSize": "9pt"
   },
   "kars": {
     "top": 158,
-    "left": 902,
+    "left": 898,
     "fontSize": "11pt"
   },
   "kastamonu": {
     "top": 97,
-    "left": 422
+    "left": 416
   },
   "kayseri": {
     "top": 287,
-    "left": 528
+    "left": 523
   },
   "kirklareli": {
     "top": 65,
-    "left": 112,
+    "left": 106,
     "fontSize": "10pt"
   },
   "kirsehir": {
-    "top": 242,
-    "left": 437,
-    "fontSize": "11pt"
+    "top": 245,
+    "left": 435,
+    "fontSize": "10pt"
   },
   "kocaeli": {
-    "top": 128,
-    "left": 234,
+    "top": 131,
+    "left": 226,
     "fontSize": "8pt"
   },
   "konya": {
     "top": 328,
-    "left": 351
+    "left": 346
   },
   "kutahya": {
     "top": 235,
-    "left": 201
+    "left": 194
   },
   "malatya": {
-    "top": 290,
-    "left": 642,
-    "fontSize": "11pt"
+    "top": 296,
+    "left": 636,
+    "fontSize": "10pt"
   },
   "manisa": {
     "top": 265,
-    "left": 122,
+    "left": 117,
     "fontSize": "11pt"
   },
   "kahramanmaras": {
     "top": 340,
-    "left": 590,
+    "left": 584,
     "fontSize": "11pt"
   },
   "mardin": {
@@ -222,8 +223,8 @@
   },
   "mugla": {
     "top": 365,
-    "left": 120,
-    "fontSize": "11pt"
+    "left": 114,
+    "fontSize": "10pt"
   },
   "mus": {
     "top": 264,
@@ -232,32 +233,32 @@
   },
   "nevsehir": {
     "top": 285,
-    "left": 469,
-    "fontSize": "9pt"
+    "left": 466,
+    "fontSize": "8pt"
   },
   "nigde": {
-    "top": 335,
-    "left": 471,
+    "top": 339,
+    "left": 467,
     "fontSize": "10pt"
   },
   "ordu": {
     "top": 142,
-    "left": 619,
+    "left": 613,
     "fontSize": "10pt"
   },
   "rize": {
-    "top": 131,
-    "left": 789,
+    "top": 134,
+    "left": 785,
     "fontSize": "8pt"
   },
   "sakarya": {
-    "top": 144,
-    "left": 264,
+    "top": 149,
+    "left": 259,
     "fontSize": "8pt"
   },
   "samsun": {
-    "top": 116,
-    "left": 534,
+    "top": 120,
+    "left": 531,
     "fontSize": "10pt"
   },
   "siirt": {
@@ -267,21 +268,21 @@
   },
   "sinop": {
     "top": 92,
-    "left": 490,
+    "left": 486,
     "fontSize": "9pt"
   },
   "sivas": {
     "top": 222,
-    "left": 602
+    "left": 596
   },
   "tekirdag": {
-    "top": 113,
-    "left": 90,
+    "top": 105,
+    "left": 101,
     "fontSize": "8pt"
   },
   "tokat": {
-    "top": 167,
-    "left": 586,
+    "top": 170,
+    "left": 581,
     "fontSize": "10pt"
   },
   "trabzon": {
@@ -291,16 +292,16 @@
   },
   "tunceli": {
     "top": 248,
-    "left": 722,
+    "left": 717,
     "fontSize": "10pt"
   },
   "sanliurfa": {
     "top": 388,
-    "left": 714
+    "left": 703
   },
   "usak": {
     "top": 284,
-    "left": 188,
+    "left": 184,
     "fontSize": "9pt"
   },
   "van": {
@@ -308,33 +309,33 @@
     "left": 948
   },
   "yozgat": {
-    "top": 225,
-    "left": 500
+    "top": 221,
+    "left": 496
   },
   "zonguldak": {
     "top": 112,
-    "left": 330,
-    "fontSize": "8pt"
+    "left": 329,
+    "fontSize": "7pt"
   },
   "aksaray": {
     "top": 312,
-    "left": 432,
+    "left": 428,
     "fontSize": "9pt"
   },
   "bayburt": {
     "top": 179,
-    "left": 760,
-    "fontSize": "8pt"
+    "left": 757,
+    "fontSize": "6pt"
   },
   "karaman": {
-    "top": 385,
-    "left": 400,
+    "top": 386,
+    "left": 395,
     "fontSize": "10pt"
   },
   "kirikkale": {
-    "top": 213,
-    "left": 419,
-    "fontSize": "9pt"
+    "top": 210,
+    "left": 418,
+    "fontSize": "8pt"
   },
   "batman": {
     "top": 343,
@@ -347,43 +348,43 @@
     "fontSize": "9pt"
   },
   "bartin": {
-    "top": 87,
-    "left": 365,
-    "fontSize": "8pt"
+    "top": 90,
+    "left": 361,
+    "fontSize": "7pt"
   },
   "ardahan": {
     "top": 111,
-    "left": 892,
-    "fontSize": "9pt"
+    "left": 890,
+    "fontSize": "8pt"
   },
   "igdir": {
-    "top": 188,
-    "left": 957,
+    "top": 189,
+    "left": 954,
     "fontSize": "9pt"
   },
   "yalova": {
-    "top": 148,
-    "left": 196,
-    "fontSize": "5pt"
+    "top": 142,
+    "left": 161,
+    "fontSize": "8pt"
   },
   "karabuk": {
-    "top": 118,
-    "left": 367,
-    "fontSize": "9pt"
+    "top": 121,
+    "left": 364,
+    "fontSize": "8pt"
   },
   "kilis": {
-    "top": 415,
-    "left": 602,
-    "fontSize": "6pt"
+    "top": 433,
+    "left": 606,
+    "fontSize": "8pt"
   },
   "osmaniye": {
     "top": 388,
-    "left": 560,
-    "fontSize": "8pt"
+    "left": 558,
+    "fontSize": "7pt"
   },
   "duzce": {
-    "top": 131,
+    "top": 132,
     "left": 300,
-    "fontSize": "8pt"
+    "fontSize": "7pt"
   }
 }

@@ -1,9 +1,6 @@
 const puppeteer = require("puppeteer");
 const { turkishToAsciiChar } = require("./utils");
 const coordinates = require("./coordinates.json");
-const cityNames = require("./cityNames").map((city) =>
-  turkishToAsciiChar(city).toLowerCase()
-);
 
 const URL = "https://covid19asi.saglik.gov.tr/";
 
@@ -19,10 +16,14 @@ module.exports.scrapeStats = async () => {
   console.log("Going to the URL");
   await page.goto(URL, { waitUntil: "domcontentloaded" });
   console.log("Loaded page");
-  const stats = await page.$$eval("#color1", (elements) => {
-    return elements.map((element) => {
-      return {
-        cityName: element.getAttribute("data-adi"),
+  const vaccinationStats = await page.$$eval("#color1", (elements) => {
+    const vaccinationStatsObj = {};
+    elements.forEach((element) => {
+      const cityName =
+        element.getAttribute("data-adi") === "Afyon"
+          ? "Afyonkarahisar"
+          : element.getAttribute("data-adi");
+      vaccinationStatsObj[cityName] = {
         firstDose: parseInt(
           element.getAttribute("data-birinci-doz").replace(/\./g, "")
         ),
@@ -31,13 +32,14 @@ module.exports.scrapeStats = async () => {
         ),
       };
     });
+    return vaccinationStatsObj;
   });
   browser.close();
-  return stats;
+  return vaccinationStats;
 };
 
 // render the map with color and percentages
-module.exports.render = async (stats) => {
+module.exports.render = async (vaccinationPercentages, secondDose) => {
   const browser = await puppeteer.launch({ headless: false });
   // const browser = await puppeteer.launch({ headless: true });
 
@@ -49,18 +51,34 @@ module.exports.render = async (stats) => {
     waitUntil: "domcontentloaded",
   });
 
-  for (cityName of cityNames) {
+  // let i = 1.2; // debug instead of vaccinationPercentageFloat
+  for (cityName in vaccinationPercentages) {
+    const percentage = secondDose
+      ? vaccinationPercentages[cityName].secondDose
+      : vaccinationPercentages[cityName].firstDose;
+    const asciiName = turkishToAsciiChar(cityName).toLowerCase();
     console.log(cityName);
+    console.log(percentage);
+    const vaccinationRate = (percentage / 100).toFixed(2);
+    const vaccinationPercentageFloat = parseFloat(percentage);
+    const hue = `${(50 + vaccinationPercentageFloat * 0.9).toFixed(0)}`;
+    const saturation = `${(65 - vaccinationPercentageFloat * 0.4).toFixed(0)}%`;
+    const light = `${(95 - vaccinationPercentageFloat * 0.6).toFixed(0)}%`;
+    // console.log(i);
+    console.log("Hue: " + hue);
+    console.log("Sat: " + saturation);
+    console.log("Light: " + light);
     await fillCityColorAndText(
-      cityName,
-      "red",
+      asciiName,
+      `hsl(${hue}, ${saturation}, ${light}, 1)`,
       page,
-      coordinates[cityName],
-      99
+      coordinates[asciiName],
+      percentage
     );
+    // i += 1.2;
   }
 
-  const element = await page.$("#map");
+  const element = await page.$("svg");
 
   if (element) {
     await element.screenshot({
