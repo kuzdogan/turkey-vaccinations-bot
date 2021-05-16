@@ -16,7 +16,7 @@ module.exports.tweetImages = async function (image1, image2, status) {
   console.log("Tweeting status");
   return makePost("statuses/update", {
     status: status,
-    media_ids: [id1, id2],
+    media_ids: `${id1},${id2}`,
   });
 };
 
