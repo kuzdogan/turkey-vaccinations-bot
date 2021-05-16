@@ -4,11 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_ENV=test node -e \"require('./index.js').tweetVaccinations()\" $*",
+    "deploy": "export $(grep -v '^#' .env | xargs) && gcloud config configurations activate config24trends && gcloud functions deploy tweetEtimoloji --runtime nodejs12 --trigger-topic tweet"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "puppeteer": "^9.1.1"
+    "moment-timezone": "^0.5.33",
+    "puppeteer": "^9.1.1",
+    "twitter": "^1.7.1"
   }
 }

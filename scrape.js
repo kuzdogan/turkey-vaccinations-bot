@@ -1,14 +1,18 @@
 const puppeteer = require("puppeteer");
 const { turkishToAsciiChar } = require("./utils");
 const coordinates = require("./coordinates.json");
-
+const moment = require("moment-timezone");
 const URL = "https://covid19asi.saglik.gov.tr/";
 
 module.exports.scrapeStats = async () => {
   console.log("hello");
   console.log("Launching Browser");
-  // const browser = await puppeteer.launch({ headless: false });
-  const browser = await puppeteer.launch({ headless: true });
+  // const browser = await puppeteer.launch({ headless: false }); //debug
+  console.log("Launching browser");
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox"],
+  });
 
   // Load page
   console.log("Opened new page");
@@ -40,8 +44,12 @@ module.exports.scrapeStats = async () => {
 
 // render the map with color and percentages
 module.exports.render = async (vaccinationPercentages, secondDose) => {
-  const browser = await puppeteer.launch({ headless: false });
-  // const browser = await puppeteer.launch({ headless: true });
+  // const browser = await puppeteer.launch({ headless: false }); //debug
+  console.log("Launching browser");
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox"],
+  });
 
   // Load page
   console.log("Opened new page");
@@ -50,6 +58,36 @@ module.exports.render = async (vaccinationPercentages, secondDose) => {
   await page.goto(`file://${__dirname}/Turkey/index.html`, {
     waitUntil: "domcontentloaded",
   });
+
+  // Hide city name above
+  await page.$eval("#sehir", (elem) => (elem.style = "visibility: hidden"));
+
+  // Write date and explanation
+  const dateStr = moment()
+    .tz("Europe/Istanbul")
+    .locale("tr")
+    .format("D MMMM YYYY dddd H:mm ");
+
+  const labelStr = `${dateStr} il bazında ${
+    secondDose ? "ikinci" : "birinci"
+  } doz aşılama oranları`;
+  await page.$eval(
+    "#sehir",
+    (sehirElem, labelStr) => {
+      const label = document.createElement("div");
+      label.innerHTML = labelStr;
+      label.id = "label";
+      label.style = `z-index: 100; margin: auto; text-align: center; margin-top: 0px; margin-bottom: -48px; font-size: 16pt;`;
+      document.querySelector("body").insertBefore(label, sehirElem);
+      const account = document.createElement("div");
+      account.innerHTML = "@TurkiyeCovidAsilama";
+      account.id = "label";
+      account.style =
+        "z-index: 100; text-align: center; padding-bottom: 16px; font-size: 14pt;";
+      document.querySelector("body").insertBefore(account, sehirElem);
+    },
+    labelStr
+  );
 
   // let i = 1.2; // debug instead of vaccinationPercentageFloat
   for (cityName in vaccinationPercentages) {
@@ -79,13 +117,10 @@ module.exports.render = async (vaccinationPercentages, secondDose) => {
   }
 
   const element = await page.$("svg");
-
-  if (element) {
-    await element.screenshot({
-      path: `./screenshot.png`,
-      omitBackground: true,
-    });
-  }
+  return element.screenshot({
+    omitBackground: true,
+    encoding: "base64",
+  });
 };
 
 const fillCityColorAndText = async (

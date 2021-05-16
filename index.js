@@ -1,26 +1,44 @@
 const { scrapeStats, render } = require("./scrape");
 const cityNames = require("./cityNames");
 const nufus = require("./nufus.json");
+const moment = require("moment-timezone");
 
-const sumTotalFirstDose = (stats) => {
-  return stats.reduce((accumulator, curr) => {
-    return accumulator + curr.firstDose;
-  }, 0);
-};
+// Write date and explanation
+const dateStr = moment()
+  .tz("Europe/Istanbul")
+  .locale("tr")
+  .format("D MMMM YYYY dddd HH:mm ");
 
-(async function main() {
+exports.tweetVaccinations = async () => {
   const vaccinationStats = await scrapeStats();
   const vaccinationPercentages = calculateVaccinationPercentages(
     vaccinationStats,
     nufus
   );
-  // console.log(sumTotalFirstDose(stats));
-  await render(vaccinationPercentages, false);
+  let totalPopulation = 0;
+  totalFirstDoses = 0;
+  totalSecondDoses = 0;
+  for (cityName in vaccinationStats) {
+    totalFirstDoses += vaccinationStats[cityName].firstDose;
+    totalSecondDoses += vaccinationStats[cityName].secondDose;
+    totalPopulation += nufus[cityName];
+  }
+  const totalFirstDoseRate = totalFirstDoses / totalPopulation;
+  const totalSecondDoseRate = totalSecondDoses / totalPopulation;
+  const totalFirstDoseStr =
+    generateProgressbar(totalFirstDoseRate) + " 1. Doz tamamlanan";
+  const totalSecondDoseStr =
+    generateProgressbar(totalSecondDoseRate) + " 2. Doz tamamlanan";
+  const status = dateStr + "\n" + totalFirstDoseStr + "\n" + totalSecondDoseStr;
+  console.log(status);
+  const firstDoseImage = await render(vaccinationPercentages, false, dateStr);
+  const secondDoseImage = await render(vaccinationPercentages, true, dateStr);
+  // console.log(firstDoseImage);
   // cityNames.forEach((cityName) =>
   //   console.log(`${cityName}: ${nufus[cityName]}`)
   // );
   // process.exit();
-})();
+};
 
 const calculateVaccinationPercentages = (vaccinationStats, nufus) => {
   const vaccinationPercentages = {};
@@ -37,4 +55,13 @@ const calculateVaccinationPercentages = (vaccinationStats, nufus) => {
     };
   }
   return vaccinationPercentages;
+};
+
+const generateProgressbar = (rate) => {
+  const numChars = 15;
+  const numFilled = Math.round(rate * numChars);
+  const numEmpty = numChars - numFilled;
+  displayPercentage = (rate * 100).toFixed(1).replace(".", ",");
+  msg = "▓".repeat(numFilled) + "░".repeat(numEmpty) + " %" + displayPercentage;
+  return msg;
 };
