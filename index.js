@@ -3,6 +3,7 @@ const cityNames = require("./cityNames");
 const nufus = require("./nufus.json");
 const moment = require("moment-timezone");
 const { tweetImages } = require("./tweetUtils");
+const { appendCsv, calculateNewRow } = require("./csv");
 
 // Write date and explanation
 const date = moment().tz("Europe/Istanbul").locale("tr");
@@ -11,7 +12,7 @@ const dateStr = date.format("D MMMM YYYY dddd HH:mm ");
 exports.tweetVaccinations = async () => {
   try {
     console.log(`It's ${date.hour()} o'clock in Turkey!`);
-    if (date.hour() !== 13 || date.hour() !== 18 || date.hour() !== 22) {
+    if (!(date.hour() === 19 || process.env.NODE_ENV === "test")) {
       return;
     }
     const vaccinationStats = await scrapeStats();
@@ -29,22 +30,41 @@ exports.tweetVaccinations = async () => {
     }
     const totalFirstDoseRate = totalFirstDoses / totalPopulation;
     const totalSecondDoseRate = totalSecondDoses / totalPopulation;
+
+    // Calculate daily changes and write new row to .csv
+    const newRow = await calculateNewRow(vaccinationStats);
+    await appendCsv(newRow);
+
     const totalFirstDoseStr =
-      generateProgressbar(totalFirstDoseRate) + " 1. Doz tamamlanan";
+      "1. Doz tamamlanan\n" +
+      generateProgressbar(totalFirstDoseRate) +
+      "\n" +
+      "24 saatte +%" +
+      newRow["TotalFirstChangePercentage"].toString().replace(".", ",") +
+      " (" +
+      numberWithDots(newRow["TotalFirstChange"]) +
+      " doz)";
     const totalSecondDoseStr =
-      generateProgressbar(totalSecondDoseRate) + " 2. Doz tamamlanan";
+      "2. Doz tamamlanan\n" +
+      generateProgressbar(totalSecondDoseRate) +
+      "\n" +
+      "24 saatte +%" +
+      newRow["TotalSecondChangePercentage"].toString().replace(".", ",") +
+      " (" +
+      numberWithDots(newRow["TotalSecondChange"]) +
+      " doz)";
+
     const status =
-      dateStr + "\n" + totalFirstDoseStr + "\n" + totalSecondDoseStr;
+      dateStr + "\n\n" + totalFirstDoseStr + "\n" + totalSecondDoseStr;
     console.log(status);
     const firstDoseImage = await render(vaccinationPercentages, false, dateStr);
     const secondDoseImage = await render(vaccinationPercentages, true, dateStr);
     await tweetImages(firstDoseImage, secondDoseImage, status);
     console.log("Tweeted successfully");
-
-    process.exit();
+    process.exit(0);
   } catch (err) {
-    console.err(err);
-    process.exit();
+    console.error(err);
+    process.exit(1);
   }
 };
 
@@ -73,3 +93,7 @@ const generateProgressbar = (rate) => {
   msg = "▓".repeat(numFilled) + "░".repeat(numEmpty) + " %" + displayPercentage;
   return msg;
 };
+
+function numberWithDots(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}

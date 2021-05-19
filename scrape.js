@@ -3,6 +3,19 @@ const { turkishToAsciiChar } = require("./utils");
 const coordinates = require("./coordinates.json");
 const URL = "https://covid19asi.saglik.gov.tr/";
 
+/**
+ * Puppeteer function to scrape vaccination stats of each city from https://covid19asi.saglik.gov.tr.
+ *
+ * @returns {Object} cumulative vaccinations stats
+ * @example {
+ *  Adana: {
+ *    firstDose: 12323,
+ *    secondDose: 89273
+ *  },
+ *  Bursa: ...
+ *  ...
+ * }
+ */
 module.exports.scrapeStats = async () => {
   console.log("Launching Browser");
   // const browser = await puppeteer.launch({ headless: false }); //debug
@@ -113,9 +126,9 @@ module.exports.render = async (vaccinationPercentages, secondDose, dateStr) => {
   );
   const element = await page.$("svg");
   return element.screenshot({
-    path: `./screenshot.png`,
+    // path: `./screenshot.png`,
     omitBackground: true,
-    // encoding: "base64",
+    encoding: "base64",
   });
 };
 
