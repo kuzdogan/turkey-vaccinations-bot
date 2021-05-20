@@ -3,11 +3,11 @@ const cityNames = require("./cityNames");
 const nufus = require("./nufus.json");
 const moment = require("moment-timezone");
 const { tweetImages } = require("./tweetUtils");
-const { appendCsv, calculateNewRow } = require("./csv");
+const { calculateNewRow, downloadCSV, appendCsv, uploadCSV } = require("./csv");
 
 // Write date and explanation
 const date = moment().tz("Europe/Istanbul").locale("tr");
-const dateStr = date.format("D MMMM YYYY dddd HH:mm ");
+const dateStr = date.format("D MMMM YYYY dddd");
 
 exports.tweetVaccinations = async () => {
   try {
@@ -32,6 +32,7 @@ exports.tweetVaccinations = async () => {
     const totalSecondDoseRate = totalSecondDoses / totalPopulation;
 
     // Calculate daily changes and write new row to .csv
+    await downloadCSV();
     const newRow = await calculateNewRow(vaccinationStats);
     await appendCsv(newRow);
 
@@ -55,12 +56,18 @@ exports.tweetVaccinations = async () => {
       " doz)";
 
     const status =
-      dateStr + "\n\n" + totalFirstDoseStr + "\n" + totalSecondDoseStr;
+      "📆 " +
+      dateStr +
+      "\n\n" +
+      totalFirstDoseStr +
+      "\n\n" +
+      totalSecondDoseStr;
     console.log(status);
     const firstDoseImage = await render(vaccinationPercentages, false, dateStr);
     const secondDoseImage = await render(vaccinationPercentages, true, dateStr);
     await tweetImages(firstDoseImage, secondDoseImage, status);
     console.log("Tweeted successfully");
+    await uploadCSV();
     process.exit(0);
   } catch (err) {
     console.error(err);

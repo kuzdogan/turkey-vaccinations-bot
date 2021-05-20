@@ -1,2 +1,4 @@
 node_modules/
 .env
+# Gcloud service account key
+key.json

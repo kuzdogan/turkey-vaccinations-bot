@@ -1,11 +1,37 @@
 const csv = require("fast-csv");
 const path = require("path");
 const fs = require("fs");
-const FILE_PATH = path.join(__dirname, "/csv", "vac-stats.csv");
+const { Storage } = require("@google-cloud/storage");
+const BUCKET_NAME = "covid-asilama";
+const FILE_NAME = "vac-stats.csv";
+const LOCAL_FILE_PATH = "/tmp/" + FILE_NAME;
+const storage = new Storage();
+/**
+ * Downloads the file from GC Storage. Appends the new row. Uploads the file back.
+ *
+ * @param {*} rowObject
+ * @returns
+ */
+exports.uploadCSV = async () => {
+  await storage
+    .bucket(BUCKET_NAME)
+    .upload(LOCAL_FILE_PATH, { destination: FILE_NAME });
+  console.log(`${LOCAL_FILE_PATH} uploaded to ${BUCKET_NAME}`);
+};
+
+exports.downloadCSV = async () => {
+  await storage
+    .bucket(BUCKET_NAME)
+    .file(FILE_NAME)
+    .download({ destination: LOCAL_FILE_PATH });
+  console.log(
+    `gs://${BUCKET_NAME}/${FILE_NAME} downloaded to ${LOCAL_FILE_PATH}.`
+  );
+};
 
 exports.appendCsv = (rowObject) => {
   return new Promise((resolve, reject) => {
-    const fsWriteStream = fs.createWriteStream(FILE_PATH, { flags: "a" }); // append flag.
+    const fsWriteStream = fs.createWriteStream(LOCAL_FILE_PATH, { flags: "a" }); // append flag.
     const csvStream = csv.format({
       headers: true,
       writeHeaders: false,
@@ -47,7 +73,7 @@ exports.appendCsv = (rowObject) => {
  */
 exports.calculateNewRow = async (statsObject) => {
   const newRowObject = {};
-  const previousDayObject = await getPreviousDayRowAsObject(FILE_PATH);
+  const previousDayObject = await getPreviousDayRowAsObject(LOCAL_FILE_PATH);
 
   let newTotalFirst = 0;
   let newTotalSecond = 0;
