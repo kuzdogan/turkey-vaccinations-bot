@@ -4,14 +4,11 @@ const coordinates = require("./coordinates.json");
 const URL = "https://covid19asi.saglik.gov.tr/";
 
 /**
- * Puppeteer function to scrape vaccination stats of each city from https://covid19asi.saglik.gov.tr.
+ * Puppeteer function to scrape vaccination percentages of each city from https://covid19asi.saglik.gov.tr.
  *
  * @returns {Object} cumulative vaccinations stats
  * @example {
- *  Adana: {
- *    firstDose: 12323,
- *    secondDose: 89273
- *  },
+ *  Adana: 83,2
  *  Bursa: ...
  *  ...
  * }
@@ -29,32 +26,49 @@ module.exports.scrapeStats = async () => {
   console.log("Opened new page");
   const page = await browser.newPage();
   console.log("Going to the URL");
-  await page.goto(URL, { waitUntil: "domcontentloaded" });
+  await page.goto(URL, { waitUntil: "networkidle2" });
   console.log("Loaded page");
-  const vaccinationStats = await page.$$eval("#color1", (elements) => {
-    const vaccinationStatsObj = {};
-    elements.forEach((element) => {
-      const cityName =
-        element.getAttribute("data-adi") === "Afyon"
-          ? "Afyonkarahisar"
-          : element.getAttribute("data-adi");
-      vaccinationStatsObj[cityName] = {
-        firstDose: parseInt(
-          element.getAttribute("data-birinci-doz").replace(/\./g, "")
-        ),
-        secondDose: parseInt(
-          element.getAttribute("data-ikinci-doz").replace(/\./g, "")
-        ),
-      };
-    });
-    return vaccinationStatsObj;
+  const vaccinationStats = await page.$eval(
+    "#turkiye-tamamlanan",
+    (wrapper) => {
+      const vaccinationPercentagesObj = {};
+      // skip first element <defs></defs>
+      for (let i = 1; i < wrapper.children.length; i++) {
+        const element = wrapper.children[i];
+        const cityName =
+          element.getAttribute("data-adi") === "Afyon"
+            ? "Afyonkarahisar"
+            : element.getAttribute("data-adi");
+        vaccinationPercentagesObj[cityName] = parseFloat(
+          element.getAttribute("data-yuzde").slice(2)
+        );
+      }
+      return vaccinationPercentagesObj;
+    }
+  );
+  console.log(vaccinationStats);
+  const firstDoseCount = await page.$eval(".doz1asisayisi", (element) => {
+    return parseInt(element.innerText.replace(/\./g, ""));
   });
+  const secondDoseCount = await page.$eval(".doz2asisayisi", (element) => {
+    return parseInt(element.innerText.replace(/\./g, ""));
+  });
+  const thirdDoseCount = await page.$eval(".doz3asisayisi", (element) => {
+    return parseInt(element.innerText.replace(/\./g, ""));
+  });
+  console.log("====Dose couints====");
+  console.log(firstDoseCount);
+  console.log(secondDoseCount);
+  console.log(thirdDoseCount);
   browser.close();
-  return vaccinationStats;
+  return [
+    vaccinationStats,
+    { firstDoseCount, secondDoseCount, thirdDoseCount },
+  ];
 };
 
 // render the map with color and percentages
-module.exports.render = async (vaccinationPercentages, secondDose, dateStr) => {
+module.exports.render = async (vaccinationPercentages, dateStr) => {
   // const browser = await puppeteer.launch({ headless: false }); //debug
   console.log("Launching browser");
   const browser = await puppeteer.launch({
@@ -73,9 +87,7 @@ module.exports.render = async (vaccinationPercentages, secondDose, dateStr) => {
   // Hide city name above
   await page.$eval("#sehir", (elem) => (elem.style = "visibility: hidden"));
 
-  const labelStr = `${dateStr} il bazında <u><b>${
-    secondDose ? "ikinci" : "birinci"
-  } doz</b></u> aşılama oranları`;
+  const labelStr = `${dateStr} il bazında <u><b>18 yaş üstü birinci doz</b></u> aşılama oranları`;
   await page.$eval(
     "#sehir",
     (sehirElem, labelStr) => {
@@ -96,13 +108,10 @@ module.exports.render = async (vaccinationPercentages, secondDose, dateStr) => {
 
   // let i = 1.2; // debug instead of vaccinationPercentageFloat
   for (cityName in vaccinationPercentages) {
-    const percentage = secondDose
-      ? vaccinationPercentages[cityName].secondDose
-      : vaccinationPercentages[cityName].firstDose;
+    const percentage = vaccinationPercentages[cityName];
     const asciiName = turkishToAsciiChar(cityName).toLowerCase();
     // console.log(cityName);
     // console.log(percentage);
-    const vaccinationRate = (percentage / 100).toFixed(2);
     const vaccinationPercentageFloat = parseFloat(percentage);
     const hue = `${(50 + vaccinationPercentageFloat * 0.9).toFixed(0)}`;
     const saturation = `${(65 - vaccinationPercentageFloat * 0.4).toFixed(0)}%`;
@@ -121,9 +130,7 @@ module.exports.render = async (vaccinationPercentages, secondDose, dateStr) => {
     // i += 1.2;
   }
 
-  console.log(
-    `Taking screenshot of ${secondDose ? "second dose" : "first dose"}`
-  );
+  console.log(`Taking screenshot`);
   const element = await page.$("svg");
   return element.screenshot({
     // path: `./screenshot.png`,
@@ -158,3 +165,7 @@ const fillCityColorAndText = async (
     percentage
   );
 };
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

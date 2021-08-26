@@ -3,9 +3,13 @@ const path = require("path");
 const fs = require("fs");
 const { Storage } = require("@google-cloud/storage");
 const BUCKET_NAME = "covid-asilama";
-const FILE_NAME = "vac-stats.csv";
+const FILE_NAME = "vac-percentages.csv";
 const LOCAL_FILE_PATH = "/tmp/" + FILE_NAME;
 const storage = new Storage();
+const nufus = require("./nufus.json");
+const moment = require("moment");
+const TOTAL_NUFUS = 83614362;
+
 /**
  * Downloads the file from GC Storage. Appends the new row. Uploads the file back.
  *
@@ -71,83 +75,46 @@ exports.appendCsv = (rowObject) => {
  *  ...
  * }
  */
-exports.calculateNewRow = async (statsObject) => {
-  const newRowObject = {};
+exports.calculateNewRow = async (totalCounts) => {
+  const newRowObject = {
+    Tarih: moment().format("YYYY-MM-DD"),
+  };
+  console.log("Total population is: " + TOTAL_NUFUS);
   const previousDayObject = await getPreviousDayRowAsObject(LOCAL_FILE_PATH);
 
-  let newTotalFirst = 0;
-  let newTotalSecond = 0;
-  for (city in statsObject) {
-    // Skip total columns
-    if (city.match("Total*")) continue;
+  console.log(previousDayObject);
 
-    // Calculate first dose.
-    const todaysCityVaccinationFirst = statsObject[city].firstDose;
-    newRowObject[city + "First"] = todaysCityVaccinationFirst;
-    newTotalFirst += todaysCityVaccinationFirst;
-
-    // Calculate second dose.
-    const todaysCityVaccinationSecond = statsObject[city].secondDose;
-    newRowObject[city + "Second"] = todaysCityVaccinationSecond;
-    newTotalSecond += todaysCityVaccinationSecond;
-
-    // If previousDayObject is falsey, first time writing to .csv i.e. no difference/percentage etc.
-    if (previousDayObject) {
-      // Calculate Difference
-      const pastCityVaccinationFirst = previousDayObject[city + "First"];
-      const diffFirst = todaysCityVaccinationFirst - pastCityVaccinationFirst;
-      newRowObject[`${city}FirstChange`] = diffFirst;
-
-      // Calculate Difference
-      const pastCityVaccinationSecond = previousDayObject[city + "Second"];
-      const diffSecond =
-        todaysCityVaccinationSecond - pastCityVaccinationSecond;
-      newRowObject[`${city}SecondChange`] = diffSecond;
-
-      // Calculate percentage of change
-      const diffFirstPercentage = parseFloat(
-        ((diffFirst / pastCityVaccinationFirst) * 100).toFixed(1)
-      );
-      newRowObject[`${city}FirstChangePercentage`] = diffFirstPercentage;
-
-      // Calculate percentage of change
-      const diffSecondPercentage = parseFloat(
-        ((diffSecond / pastCityVaccinationSecond) * 100).toFixed(1)
-      );
-      newRowObject[`${city}SecondChangePercentage`] = diffSecondPercentage;
-    } else {
-      newRowObject[`${city}FirstChange`] = 0;
-      newRowObject[`${city}SecondChange`] = 0;
-      newRowObject[`${city}FirstChangePercentage`] = 0;
-      newRowObject[`${city}SecondChangePercentage`] = 0;
-    }
-  }
-
-  // Write totals.
-  console.log("New first dose total is: " + newTotalFirst);
-  console.log("New second dose total is: " + newTotalSecond);
-  newRowObject["TotalFirst"] = newTotalFirst;
-  newRowObject["TotalSecond"] = newTotalSecond;
+  newRowObject["TotalFirst"] = totalCounts.firstDoseCount;
+  newRowObject["TotalSecond"] = totalCounts.secondDoseCount;
+  newRowObject["TotalThird"] = totalCounts.thirdDoseCount;
 
   // No change if no previousDayObject ie first time writing.
   if (previousDayObject) {
     const pastTotalFirst = previousDayObject["TotalFirst"];
     const pastTotalSecond = previousDayObject["TotalSecond"];
-    const totalDiffFirst = newTotalFirst - pastTotalFirst;
-    const totalDiffSecond = newTotalSecond - pastTotalSecond;
+    const pastTotalThird = previousDayObject["TotalThird"];
+    const totalDiffFirst = totalCounts.firstDoseCount - pastTotalFirst;
+    const totalDiffSecond = totalCounts.secondDoseCount - pastTotalSecond;
+    const totalDiffThird = totalCounts.thirdDoseCount - pastTotalThird;
     newRowObject["TotalFirstChange"] = totalDiffFirst;
     newRowObject["TotalSecondChange"] = totalDiffSecond;
+    newRowObject["TotalThirdChange"] = totalDiffThird;
     newRowObject["TotalFirstChangePercentage"] = parseFloat(
-      ((totalDiffFirst / pastTotalFirst) * 100).toFixed(1)
+      ((totalDiffFirst / TOTAL_NUFUS) * 100).toFixed(1)
     );
     newRowObject["TotalSecondChangePercentage"] = parseFloat(
-      ((totalDiffSecond / pastTotalSecond) * 100).toFixed(1)
+      ((totalDiffSecond / TOTAL_NUFUS) * 100).toFixed(1)
+    );
+    newRowObject["TotalThirdChangePercentage"] = parseFloat(
+      ((totalDiffThird / TOTAL_NUFUS) * 100).toFixed(1)
     );
   } else {
     newRowObject["TotalFirstChange"] = 0;
     newRowObject["TotalSecondChange"] = 0;
+    newRowObject["TotalThirdChange"] = 0;
     newRowObject["TotalFirstChangePercentage"] = 0;
     newRowObject["TotalSecondChangePercentage"] = 0;
+    newRowObject["TotalThirdChangePercentage"] = 0;
   }
 
   return newRowObject;

@@ -1,10 +1,10 @@
 const { scrapeStats, render } = require("./scrape");
 const cityNames = require("./cityNames");
-const nufus = require("./nufus.json");
+// const nufus = require("./nufus.json");
 const moment = require("moment-timezone");
-const { tweetImages } = require("./tweetUtils");
+const { tweetImages, reply } = require("./tweetUtils");
 const { calculateNewRow, downloadCSV, appendCsv, uploadCSV } = require("./csv");
-
+const TOTAL_NUFUS = 83614362;
 // Write date and explanation
 const date = moment().tz("Europe/Istanbul").locale("tr");
 const dateStr = date.format("D MMMM YYYY dddd");
@@ -15,81 +15,67 @@ exports.tweetVaccinations = async () => {
     if (!(date.hour() === 19 || process.env.NODE_ENV === "test")) {
       return;
     }
-    const vaccinationStats = await scrapeStats();
-    const vaccinationPercentages = calculateVaccinationPercentages(
-      vaccinationStats,
-      nufus
-    );
-    let totalPopulation = 0;
-    totalFirstDoses = 0;
-    totalSecondDoses = 0;
-    for (cityName in vaccinationStats) {
-      totalFirstDoses += vaccinationStats[cityName].firstDose;
-      totalSecondDoses += vaccinationStats[cityName].secondDose;
-      totalPopulation += nufus[cityName];
-    }
-    const totalFirstDoseRate = totalFirstDoses / totalPopulation;
-    const totalSecondDoseRate = totalSecondDoses / totalPopulation;
-
+    const [vaccinationStats, totalCounts] = await scrapeStats();
+    const totalFirstDoseRate = totalCounts.firstDoseCount / TOTAL_NUFUS;
+    const totalSecondDoseRate = totalCounts.secondDoseCount / TOTAL_NUFUS;
+    const totalThirdDoseRate = totalCounts.thirdDoseCount / TOTAL_NUFUS;
     // Calculate daily changes and write new row to .csv
     await downloadCSV();
-    const newRow = await calculateNewRow(vaccinationStats);
+    const newRow = await calculateNewRow(totalCounts);
     await appendCsv(newRow);
 
+    console.log(newRow);
     const totalFirstDoseStr =
       "1. Doz tamamlanan\n" +
       generateProgressbar(totalFirstDoseRate) +
       "\n" +
-      "24 saatte +%" +
+      "24 saatte %" +
       newRow["TotalFirstChangePercentage"].toString().replace(".", ",") +
-      " (" +
+      " nufusa 1. doz aşı vuruldu (" +
       numberWithDots(newRow["TotalFirstChange"]) +
-      " doz)";
+      " adet)";
     const totalSecondDoseStr =
       "2. Doz tamamlanan\n" +
       generateProgressbar(totalSecondDoseRate) +
       "\n" +
-      "24 saatte +%" +
+      "24 saatte %" +
       newRow["TotalSecondChangePercentage"].toString().replace(".", ",") +
-      " (" +
+      " nufusa 2. doz aşı vuruldu (" +
       numberWithDots(newRow["TotalSecondChange"]) +
-      " doz)";
+      " adet)";
+    const totalThirdDoseStr =
+      "3. Doz tamamlanan\n" +
+      generateProgressbar(totalThirdDoseRate) +
+      "\n" +
+      "24 saatte %" +
+      newRow["TotalThirdChangePercentage"].toString().replace(".", ",") +
+      " nufusa 3. doz aşı vuruldu (" +
+      numberWithDots(newRow["TotalThirdChange"]) +
+      " adet)";
 
-    const status =
+    const status1 =
       "📆 " +
       dateStr +
       "\n\n" +
       totalFirstDoseStr +
       "\n\n" +
       totalSecondDoseStr;
-    console.log(status);
-    const firstDoseImage = await render(vaccinationPercentages, false, dateStr);
-    const secondDoseImage = await render(vaccinationPercentages, true, dateStr);
-    await tweetImages(firstDoseImage, secondDoseImage, status);
-    console.log("Tweeted successfully");
+
+    const status2 =
+      totalThirdDoseStr +
+      "\n\n" +
+      "Rakamlar toplam nufusa göre aşılanan oranlarıdır. Bakanlık sitesi ve görseldeki yüzdeler 18 yaş üstü nufus oranlarıdır.";
+    const image = await render(vaccinationStats, dateStr);
+    const tweetResponse = await tweetImages(image, status1);
+    console.log("Tweeted 1 successfully, id: " + tweetResponse.id_str);
+    await reply(status2, tweetResponse.id_str);
+    console.log("Tweeted 2 successfully");
     await uploadCSV();
     process.exit(0);
   } catch (err) {
     console.error(err);
     process.exit(1);
   }
-};
-
-const calculateVaccinationPercentages = (vaccinationStats, nufus) => {
-  const vaccinationPercentages = {};
-  for (city in vaccinationStats) {
-    vaccinationPercentages[city] = {
-      firstDose: (
-        (vaccinationStats[city].firstDose / nufus[city]) *
-        100
-      ).toFixed(1),
-      secondDose: (
-        (vaccinationStats[city].secondDose * 100) /
-        nufus[city]
-      ).toFixed(1),
-    };
-  }
-  return vaccinationPercentages;
 };
 
 const generateProgressbar = (rate) => {
